@@ -1,0 +1,456 @@
+---
+title: "Week 12 IP"
+author: "Mercy Cherotich"
+date: "1/21/2022"
+output: html_document
+---
+**question** 
+
+#being a data scientist hired by Kenyan enterpreneur who created an online cryptocurrency course and would like to advertise on her plog thus she needsx help to identify who are most likelyto click on her ads
+
+**metric of success**
+
+#finding the individual who are likely to click the ads
+
+**context**
+
+#knowing your clients who are likely to click on the ads are the most potential audience and customers and thus being able to know what they need and meeting their demands increases they satisfaction and are more likely to get the world out about the blog hence greating a larger audience 
+
+
+**experiment design**
+
+#reading the data 
+
+#cleaning
+
+#EDA
+
+
+# Reading the data
+**loading libraries**
+```{r}
+#install.packages("readxl")
+library("readxl")
+
+library("readxl")
+# xls files
+my_data <- read_excel("C:\\Users\\MERCY\\Downloads\\advertising.xls")
+
+```
+## Checking the dataset
+
+```{r}
+#previewing the data
+View(my_data)
+head(my_data)
+#checking the number of records and datatypes
+str(my_data)
+#our data consist of 1000 records and 10 columns out of which 5 are numeric and 5 are characters
+```
+
+# cleaning data
+
+**removing spaces in column names**
+```{r}
+colnames(my_data) <- gsub(" ","_",colnames(my_data))
+```
+**removing duplicates**
+```{r}
+#checking duplicates
+duplicates <- my_data[duplicated(my_data),]
+duplicates
+#our data has no duplicates
+```
+**checking for null** 
+```{r}
+colSums(is.na(my_data))
+#the data has no null values
+
+```
+
+**checking for outliers**
+```{r}
+#sublist of numeric columns
+my_datanumeric <- my_data[,c(1,2,3,4)]
+head(my_datanumeric)
+#checking for outliers
+boxplot(my_datanumeric$Daily_Time_Spent_on_Site,xlab ="Daily Time on site")
+boxplot(my_datanumeric$Age,xlab="Age")
+boxplot(my_datanumeric$Area_Income,xlab="Area income")
+boxplot(my_datanumeric$Daily_Internet_Usage,xlab = "Daily internet usage")
+#checking the outliers in tha area income
+outliers <- boxplot.stats(my_data$Area_Income)$out 
+outliers
+#the area income has outliers has outliers but looking at the outliers it actually possible for someone to have such small salary hence we wont drop the outliers
+```
+
+
+# Univariate analysis 
+**Clicked the  add**
+```{r}
+# dividing data into those who clicked and not
+library(dplyr)
+data_clicked = filter(my_data,Clicked_on_Ad == 1)
+head(data_clicked)
+```
+
+```{r}
+mean_time <- mean(data_clicked$Daily_Time_Spent_on_Site)
+mean_time
+#the average people whole click the ad spend on the site is 53.15
+mean_age <- mean(data_clicked$Age)
+mean_age
+#the average age of people who spend time on the site and clicked the add was  40.334
+mean_income <- mean(data_clicked$Area_Income)
+mean_income
+#the average income of people who visited the site and clicked the add was 48614.41
+mean_interne<- mean(data_clicked$Daily_Internet_Usage)
+mean_interne
+#the average data used by the people who visited the site and clicked the ad was 145.49
+```
+
+```{r}
+
+median_time <- median(data_clicked$Daily_Time_Spent_on_Site)
+median_time
+#the median people whole click the ad spend on the site is 51.53
+median_age <- median(data_clicked$Age)
+median_age
+#the median age of people who spend time on the site and clicked the add was  40
+median_income <- median(data_clicked$Area_Income)
+median_income
+#the median income of people who visited the site and clicked the add was 49417.26
+median_interne<- median(data_clicked$Daily_Internet_Usage)
+median_interne
+#the median  data used by the people who visited the site and clicked the ad was 138.79
+```
+
+
+```{r}
+getmode <- function(v) {
+   uniqv <- unique(v)
+   uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+mode_time <- getmode(data_clicked$Daily_Time_Spent_on_Site)
+mode_time
+#the mode  people whole click the ad spend on the site is 75.55
+mode_age <- getmode(data_clicked$Age)
+mode_age
+#the mode age of people who spend time on the site and clicked the add was  45
+mode_income <- getmode(data_clicked$Area_Income)
+mode_income
+#the mode income of people who visited the site and clicked the add was 24593.33
+mode_interne<- getmode(data_clicked$Daily_Internet_Usage)
+mode_interne
+#the mode used by the people who visited the site and clicked the ad was 167.22
+```
+
+```{r}
+sd_time <- sd(data_clicked$Daily_Time_Spent_on_Site)
+sd_time
+#the sd people whole click the ad spend on the site is 12.822
+sd_age <- sd(data_clicked$Age)
+sd_age
+#the sd age of people who spend time on the site and clicked the add was  9
+sd_income <- sd(data_clicked$Area_Income)
+sd_income
+#the sd income of people who visited the site and clicked the add was 14116.24
+sd_interne<- sd(data_clicked$Daily_Internet_Usage)
+sd_interne
+#the sd data used by the people who visited the site and clicked the ad was 30.02
+```
+
+
+
+```{r}
+var_time <- var(data_clicked$Daily_Time_Spent_on_Site)
+var_time
+#the var people whole click the ad spend on the site is 164.406
+var_age <- var(data_clicked$Age)
+var_age
+#the var age of people who spend time on the site and clicked the add was  78.43
+var_income <- var(data_clicked$Area_Income)
+var_income
+#the var income of people who visited the site and clicked the add was 199266829
+var_interne<- var(data_clicked$Daily_Internet_Usage)
+var_interne
+#the var data used by the people who visited the site and clicked the ad was 901.55
+```
+
+
+```{r}
+quantile_time <- quantile(data_clicked$Daily_Time_Spent_on_Site)
+quantile_time
+quantile_age <- quantile(data_clicked$Age)
+quantile_age
+quantile_income <- quantile(data_clicked$Area_Income)
+quantile_income
+quantile_interne<- quantile(data_clicked$Daily_Internet_Usage)
+quantile_interne
+```
+
+
+```{r}
+#install.packages("moments")
+library(moments)
+skew_time <- skewness(data_clicked$Daily_Time_Spent_on_Site)
+skew_time
+#the skewness people whole click the ad spend on the site is 0.533 .it has a positive skewness most observation  skewed to the right
+skew_age <- skewness(data_clicked$Age)
+skew_age
+#the skewness age of people who spend time on the site and clicked the add was  0.025.not highly skewed to the right since value close to 0
+skew_income <- skewness(data_clicked$Area_Income)
+skew_income
+#the skewness income of people who visited the site and clicked the add was - 0.17.negative skewness most observation skewed to the left
+skew_interne<- skewness(data_clicked$Daily_Internet_Usage)
+skew_interne
+#the skewness data used by the people who visited the site and clicked the ad was 1.23.positive skewness most observation skewed to the right
+```
+
+
+```{r}
+kurt_time <- kurtosis(data_clicked$Daily_Time_Spent_on_Site)
+kurt_time
+#the kurtosis people whole click the ad spend on the site is 2.56.it is Platykurtic
+kurt_age <- kurtosis(data_clicked$Age)
+kurt_age
+#the kurtosis age of people who spend time on the site and clicked the add was  2.3.it is Platykurtic
+kurt_income <- kurtosis(data_clicked$Area_Income)
+kurt_income
+#the kurtosis income of people who visited the site and clicked the add was 2.37.it is Platykurtic
+kurt_interne<- kurtosis(data_clicked$Daily_Internet_Usage)
+kurt_interne
+#the kurtosis  data used by the people who visited the site and clicked the ad was 4.81.it is Leptokurtic
+```
+
+
+```{r}
+country <- data_clicked$Country
+country <- table(country)
+data <- sort(country,decreasing = TRUE)
+head(data)
+#the leading country with people who visited the site and clicked the ad is Australia
+
+
+
+```
+
+
+```{r}
+gender <- data_clicked$Male
+gender <- table(gender)
+gender
+#more female visited the site and clicked the ad
+
+```
+**didnot click the ad**
+
+# Univariate analysis 
+**Clicked the  add**
+```{r}
+# dividing data into those who clicked and not
+library(dplyr)
+data_notclicked = filter(my_data,Clicked_on_Ad == 0)
+head(data_notclicked)
+```
+
+```{r}
+mean_time <- mean(data_notclicked$Daily_Time_Spent_on_Site)
+mean_time
+#the average time spend by people who visited the site and did not click the ad is 76.85
+mean_age <- mean(data_notclicked$Age)
+mean_age
+#the average age of people who spend time on the site and did not click the ad is  31.684
+mean_income <- mean(data_notclicked$Area_Income)
+mean_income
+#the average income of people who visited the site and did not click the ad is 61385.59
+mean_interne<- mean(data_notclicked$Daily_Internet_Usage)
+mean_interne
+#the average data used by the people who visited the site and not click the ad was 214.5137
+```
+
+```{r}
+
+median_time <- median(data_notclicked$Daily_Time_Spent_on_Site)
+median_time
+#the median of people who did not click the ad spend on the site is 77.65
+median_age <- median(data_notclicked$Age)
+median_age
+#the median age of people who spend time on the site and did not click the add is  31
+median_income <- median(data_notclicked$Area_Income)
+median_income
+#the median income of people who visited the site and did not click the add is 62275.4
+median_interne<- median(data_notclicked$Daily_Internet_Usage)
+median_interne
+#the median data used by the people who visited the site and did not click the ad was 216.365
+```
+
+
+```{r}
+getmode <- function(v) {
+   uniqv <- unique(v)
+   uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+mode_time <- getmode(data_notclicked$Daily_Time_Spent_on_Site)
+mode_time
+#the mode of time spend by the people who did not click the ad on the site is 77.05 
+mode_age <- getmode(data_notclicked$Age)
+mode_age
+#the mode age of people who spend time on the site and did not click the ad is  31
+mode_income <- getmode(data_notclicked$Area_Income)
+mode_income
+#the mode income of people who visited the site and did not click the ad is 61833.9
+mode_interne<- getmode(data_notclicked$Daily_Internet_Usage)
+mode_interne
+#the mode data used by the people who visited the site and did not click the ad is 235.28
+```
+
+```{r}
+sd_time <- sd(data_notclicked$Daily_Time_Spent_on_Site)
+sd_time
+#the sd of time spend by peopole who visited the site and did not click the ad is 7.56
+sd_age <- sd(data_notclicked$Age)
+sd_age
+#the sd age of people who spend time on the site and did not click the add is 6.21  
+sd_income <- sd(data_notclicked$Area_Income)
+sd_income
+#the sd income of people who visited the site and did not click the add is 8904.06
+sd_interne<- sd(data_notclicked$Daily_Internet_Usage)
+sd_interne
+#the sd data used by the people who visited the site and did not click the ad was 23.87
+```
+
+
+
+```{r}
+var_time <- var(data_notclicked$Daily_Time_Spent_on_Site)
+var_time
+#the var time spend by people who visited the site and did not click the ad 57.15
+var_age <- var(data_notclicked$Age)
+var_age
+#the var age of people who spend time on the site and did not click the add was  38.60
+var_income <- var(data_notclicked$Area_Income)
+var_income
+#the average income of people who visited the site and did not click the add was 79282288
+var_interne<- var(data_notclicked$Daily_Internet_Usage)
+var_interne
+#the average data used by the people who visited the site and did not click the ad was 569.9861
+```
+
+
+```{r}
+quantile_time <- quantile(data_notclicked$Daily_Time_Spent_on_Site)
+quantile_time
+quantile_age <- quantile(data_notclicked$Age)
+quantile_age
+quantile_income <- quantile(data_notclicked$Area_Income)
+quantile_income
+quantile_interne<- quantile(data_notclicked$Daily_Internet_Usage)
+quantile_interne
+```
+
+
+```{r}
+#install.packages("moments")
+library(moments)
+skew_time <- skewness(data_notclicked$Daily_Time_Spent_on_Site)
+skew_time
+#the skewness people whole did not click the ad spend on the site is -0.624
+skew_age <- skewness(data_notclicked$Age)
+skew_age
+#the skewness age of people who spend time on the site and did not click the add was  0.4793
+skew_income <- skewness(data_notclicked$Area_Income)
+skew_income
+#the skewness income of people who visited the site and did not click the add was - 0.51
+skew_interne<- skewness(data_notclicked$Daily_Internet_Usage)
+skew_interne
+#the skewness data used by the people who visited the site and did not clicked the ad was -0.35
+```
+
+
+```{r}
+kurt_time <- kurtosis(data_notclicked$Daily_Time_Spent_on_Site)
+kurt_time
+#the kurtosis people whole  did not  the ad spend on the site is 3.415.it is Leptokurtic
+kurt_age <- kurtosis(data_notclicked$Age)
+kurt_age
+#the kurtosis age of people who spend time on the site and did not click the add was  3.11.it is Leptokurtic
+kurt_income <- kurtosis(data_notclicked$Area_Income)
+kurt_income
+#the kurtosis income of people who visited the site and did not click the add was 3.03.it is Leptokurtic
+kurt_interne<- kurtosis(data_notclicked$Daily_Internet_Usage)
+kurt_interne
+#the kurtosis  data used by the people who visited the site and did not  click the ad was 2.60.it is plutokurtic.
+```
+
+
+```{r}
+country <- data_notclicked$Country
+country <- table(country)
+data <- sort(country,decreasing = TRUE)
+head(data)
+#the leading country with people who visited the site and did not click the ad is Bolivia
+
+
+
+```
+
+
+
+```{r}
+gender <- data_notclicked$Male
+gender <- table(gender)
+gender
+barplot(gender,ylab='count')
+#more female visited the site and clicked the ad
+
+```
+
+# Bivariate analysis
+```{r}
+head(my_data)
+plot(my_data$Clicked_on_Ad,my_data$Daily_Time_Spent_on_Site,xlab='click on ad',ylab='daily time')
+```
+
+
+```{r}
+
+plot(my_data$Area_Income,my_data$Age,ylab='age',xlab = 'income')
+# it has a negative correlation
+```
+
+
+```{r}
+
+plot(my_data$Daily_Internet_Usage,my_data$Age,ylab='age',xlab = 'internet usage')
+# it has a negative correlation
+```
+
+
+
+```{r}
+data <-my_data[c(1,2,3,4,7,10)]
+#correlation matrix	
+data.cor = cor(data, method = c("spearman"))
+data.cor
+#the clicked on add has a strong negative correlation with the daily time spent on site and daily internet usage of -0.744 and -0.77 respectively.
+#the cked on add has a positive correlation with the age 
+# visualising using heatmap
+heatmap <- heatmap(data.cor, Rowv=NA, Colv=NA, col = cm.colors(256), scale="column", margins=c(5,10))
+```
+
+# Conclusions
+
+#most female are more likely to click the ads when they visist the site this is because women are more likely to make purchasing decison than men thus are quick to click on ads.actually women are 11% likely to click on ads than men
+
+#the age group that are more likely to click on the ads is 40 as this is the working age and do spend lots of time in the internet
+
+#the country that most people clicked the add are from Australia 
+
+# Recomendations
+
+#should include items tailored for young people who are age 31 as they were the age that was more likely not to click the ads and also make more items for the aged 40 to attaract more audience
+
+#should known what people from Bolvia like as they were the one not likely to click the ads and this may attract their attention to click and thus increase audience
+
+#since more female are likely to shop more products appeling to women should be on the ads
